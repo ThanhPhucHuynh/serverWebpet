@@ -11,6 +11,7 @@ const PORT = process.env.PORT_SV
 
 const User = require('./models/user.model')
 const Product = require("./models/product.model")
+const Admin   = require("./models/admin.model")
 app.use(cors())
 // app.use(bodyParser.json());
 // app.use(function(req, res, next) {
@@ -63,6 +64,7 @@ mongoose.connect(URL, (error) => {
 app.get('/', (req, res) => {
     res.send('hello');
 })
+
 app.get('/user', (req, res) => {
     User.find().then((user) => {
         res.send({ user });
@@ -79,6 +81,64 @@ app.get('/user/:userEmail', (req, res) => {
         res.status(400).send(e);
     })
 })
+app.post('/user', imgUser.single('userImg'), async (req, res) => {
+
+    console.log(req.file);
+    var user = new User({
+        id: req.body.id,
+        name: req.body.name,
+        email: req.body.email,
+        pass: req.body.pass,
+        userImg: req.body.userImg,
+        Token: req.body.Token
+    });
+    await user.save().then(user => {
+        res.send(user)
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
+
+///admi
+
+app.get('/admin', (req, res) => {
+    Admin.find().then((admin) => {
+        res.send({ admin });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+app.get('/admin/:userEmail', (req, res) => {
+    var userEmail = req.params.userEmail;
+    console.log(userEmail)
+    Admin.findOne({ email: userEmail }).then((admin) => {
+        res.send({ admin });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+app.post('/admin', imgUser.single('userImg'), async (req, res) => {
+
+    console.log(req.file);
+    var admin = new Admin({
+        id: req.body.id,
+        name: req.body.name,
+        email: req.body.email,
+        pass: req.body.pass,
+        type: "admin",
+        userImg: req.body.userImg,
+        Token: req.body.Token
+    });
+    await admin.save().then(admin => {
+        res.send(admin)
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
+
+
 app.get('/product/:typeProduct', (req, res) => {
     var typeProduct = req.params.typeProduct;
     Product.find({ type: typeProduct }).then((product) => {
@@ -94,28 +154,23 @@ app.get('/product', (req, res) => {
         res.status(400).send(e);
     })
 })
-app.post('/user', imgUser.single('userImg'), async (req, res) => {
-    // try{
-    console.log(req.file);
-    var user = new User({
-        id: req.body.id,
-        name: req.body.name,
-        email: req.body.email,
-        pass: req.body.pass,
-        userImg: req.body.userImg,
-        Token: req.body.Token
-    });
-    await user.save().then(user => {
-        res.send(user)
+
+app.get('/product/img/:id', (req, res) => {
+    var id = req.params.id;
+    Product.find({ id: id }).then((product) => {
+        res.send({ product });
     }, (e) => {
         res.status(400).send(e);
     })
-
-    // }catch(err){
-    //     console.log(err);
-    // }
-
 })
+app.get('/product', (req, res) => {
+    Product.find().then((product) => {
+        res.send({ product });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
 
 app.post('/product', async (req, res) => {
     // try{
@@ -137,11 +192,32 @@ app.post('/product', async (req, res) => {
     }, (e) => {
         res.status(400).send(e);
     })
+})
 
-    // }catch(err){
-    //     console.log(err);
-    // }
+app.post('/product/update', async (req, res) => {
+    var productTmp ={
+        id: req.body.id,
+        name: req.body.name,
+        // type: req.body.type,
+        description: req.body.description,
+        price: req.body.price,
+        total: req.body.total,
+        // img: req.body.img
 
+    }
+    await Product.findOneAndUpdate({id: req.body.id}, productTmp, {new: true}).then(product => {
+        res.send(productTmp)
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
+app.post('/product/delete', async (req, res) => {
+    await Product.findOneAndRemove({id: req.body.id}).then(() => {
+        res.send("complate")
+    }, (e) => {
+        res.status(400).send(e);
+    })
 })
 app.listen(PORT, () => {
     console.log('Listening on ${PORT}')
