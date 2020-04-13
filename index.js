@@ -84,6 +84,7 @@ app.get('/user/:userEmail', (req, res) => {
 app.post('/user', imgUser.single('userImg'), async (req, res) => {
 
     console.log(req.file);
+
     var user = new User({
         id: req.body.id,
         name: req.body.name,
@@ -98,7 +99,28 @@ app.post('/user', imgUser.single('userImg'), async (req, res) => {
         res.status(400).send(e);
     })
 })
+app.post('/user/img', imgUser.array('userImg'), async (req, res) => {
 
+    console.log(req.file);
+    console.log(req.files)
+    console.log("adasd");
+    // const obj = JSON.parse(JSON.stringify(req.body.user)); 
+    console.log(JSON.parse(req.body.user));
+
+    // var user = new User({
+    //     id: req.body.id,
+    //     name: req.body.name,
+    //     email: req.body.email,
+    //     pass: req.body.pass,
+    //     userImg: req.file.path,
+    //     Token: req.body.Token
+    // });
+    // await user.save().then(user => {
+    //     res.send(user)
+    // }, (e) => {
+    //     res.status(400).send(e);
+    // })
+})
 
 ///admi
 
