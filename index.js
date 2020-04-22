@@ -220,7 +220,7 @@ app.post('/product/update', async (req, res) => {
     var productTmp ={
         id: req.body.id,
         name: req.body.name,
-        // type: req.body.type,
+        type: req.body.type,
         description: req.body.description,
         price: req.body.price,
         total: req.body.total,
