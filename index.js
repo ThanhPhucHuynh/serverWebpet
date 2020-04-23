@@ -11,6 +11,7 @@ const PORT = process.env.PORT_SV
 
 const User = require('./models/user.model')
 const Product = require("./models/product.model")
+const Order = require("./models/order.model")
 const Admin   = require("./models/admin.model")
 app.use(cors())
 // app.use(bodyParser.json());
@@ -169,6 +170,14 @@ app.get('/product/:typeProduct', (req, res) => {
         res.status(400).send(e);
     })
 })
+app.get('/product/id/:id', (req, res) => {
+    var id = req.params.id;
+    Product.find({ id: id }).then((product) => {
+        res.send({ product });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
 app.get('/product', (req, res) => {
     Product.find().then((product) => {
         res.send({ product });
@@ -245,3 +254,64 @@ app.listen(PORT, () => {
     console.log('Listening on ${PORT}')
 })
 
+// order
+
+
+
+
+app.get('/order/:email', (req, res) => {
+    var email = req.params.email;
+    Order.find({ email: email }).then((order) => {
+        res.send({ order });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+app.get('/order', (req, res) => {
+    Order.find().then((order) => {
+        res.send({ order });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
+
+
+app.post('/order', async (req, res) => {
+    // try{
+    console.log(req.file);
+    var order = new Order({
+        id: req.body.id,
+        email: req.body.email,
+        phone: req.body.phone,
+        address: req.body.address,
+        idproduct: req.body.idproduct,
+        price: req.body.price,
+        status: req.body.status
+
+    });
+    console.log(order);
+
+    await order.save().then(order => {
+        res.send(order)
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
+app.post('/order/update', async (req, res) => {
+    var productTmp ={
+        id: req.body.id,
+        email: req.body.email,
+        phone: req.body.phone,
+        address: req.body.address,
+        idproduct: req.body.idproduct,
+        price: req.body.price,
+        status: req.body.status
+    }
+    await Order.findOneAndUpdate({id: req.body.id}, productTmp, {new: true}).then(product => {
+        res.send(productTmp)
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
