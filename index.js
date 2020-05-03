@@ -54,7 +54,7 @@ var imgUser = multer({ storage: storage })
 console.log(URL);
 
 mongoose.connect(URL, {
-    dbName: "bookDB",
+    // dbName: "bookDB",
     useNewUrlParser: true,useUnifiedTopology: true }, (error) => {
     if (error) {
         console.log("erro: " + error);
