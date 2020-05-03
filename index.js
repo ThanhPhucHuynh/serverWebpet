@@ -252,8 +252,8 @@ app.post('/product/delete', async (req, res) => {
         res.status(400).send(e);
     })
 })
-app.listen(PORT, () => {
-    console.log('Listening on ${PORT}')
+app.listen(PORT || 5000, () => {
+    console.log('Listening on '+PORT || '5000')
 })
 
 // order
