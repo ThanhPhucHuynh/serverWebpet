@@ -17,7 +17,7 @@ app.use(cors())
 // app.use(bodyParser.json());
 // app.use(function(req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "YOUR-DOMAIN.TLD"); // update to match the domain you will make the request from
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.hePORT_SVader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 //     next();
 //   });
 
@@ -53,7 +53,9 @@ var imgUser = multer({ storage: storage })
 //const imgUser = multer({dest: 'imgUser/' })
 console.log(URL);
 
-mongoose.connect(URL, (error) => {
+mongoose.connect(URL, {
+    dbName: "bookDB",
+    useNewUrlParser: true,useUnifiedTopology: true }, (error) => {
     if (error) {
         console.log("erro: " + error);
     } else {
