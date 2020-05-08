@@ -102,6 +102,23 @@ app.post('/user', imgUser.single('userImg'), async (req, res) => {
         res.status(400).send(e);
     })
 })
+
+app.post('/user/update', async (req, res) => {
+    var productTmp ={
+        id: req.body.id,
+        name: req.body.name,
+        email: req.body.email,
+        pass: req.body.pass,
+        userImg: req.body.userImg,
+        Token: req.body.Token
+    }
+    await User.findOneAndUpdate({id: req.body.id}, productTmp, {new: true}).then(product => {
+        res.send(productTmp)
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
 app.post('/user/img', imgUser.array('userImg'), async (req, res) => {
 
     console.log(req.file);
