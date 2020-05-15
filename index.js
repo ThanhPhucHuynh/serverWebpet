@@ -8,11 +8,13 @@ var cors = require('cors');
 const app = express();
 const URL = process.env.URL_DB;
 const PORT = process.env.PORT_SV
-
+var md5 = require('md5');
 const User = require('./models/user.model')
 const Product = require("./models/product.model")
 const Order = require("./models/order.model")
 const Admin   = require("./models/admin.model")
+var fs = require('fs')
+var https = require('https')
 app.use(cors())
 // app.use(bodyParser.json());
 // app.use(function(req, res, next) {
@@ -80,6 +82,57 @@ app.get('/user/:userEmail', (req, res) => {
     console.log(userEmail)
     User.findOne({ email: userEmail }).then((user) => {
         res.send({ user });
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+app.get('/user/img/:userEmail', (req, res) => {
+    var userEmail = req.params.userEmail;
+    console.log(userEmail)
+    User.findOne({ email: userEmail }).then((user1) => {
+        console.log(user1.name)
+        var user = new User({
+            id: user1.id,
+            name: user1.name,
+            email: user1.email,
+            userImg: user1.userImg,
+            // Token: req.body.Token
+        });
+        res.send({user});
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+app.get('/user/:userEmail/:pass', (req, res) => {
+    var userEmail = req.params.userEmail;
+    var userPass = req.params.pass;
+    console.log(userEmail,userPass)
+    User.findOne({ email: userEmail }).then((user) => {
+        if(user.pass === userPass){
+            res.send(true);
+        }else{
+            res.send(false);
+        }
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+app.post('/user/check', (req, res) => {
+    console.log(req.body.pass)
+    UserPass =req.body.pass;
+    User.findOne({ email: req.body.email }).then(user => {
+        // console.log(user)
+        if(user){
+            if(md5(user.pass)+md5("webpet") === UserPass){
+                res.send(true);
+            }else{
+                res.send(false);
+            }
+        }else{
+            res.send(false);
+        }
+       
+        
     }, (e) => {
         res.status(400).send(e);
     })
@@ -269,9 +322,18 @@ app.post('/product/delete', async (req, res) => {
         res.status(400).send(e);
     })
 })
+
+
+
 app.listen(PORT || 5000, () => {
     console.log('Listening on '+PORT || '5000')
 })
+// https.createServer({
+//     key: fs.readFileSync('server.key'),
+//     cert: fs.readFileSync('server.cert')
+//   }, app).listen(PORT || 5000, () => {
+//     console.log('Listening on '+PORT || '5000')
+// })
 
 // order
 
