@@ -67,7 +67,7 @@ mongoose.connect(URL, {
 
 
 app.get('/', (req, res) => {
-    res.send('hello');
+    res.send('<h1>Huynh PHuc</h1>');
 })
 
 app.get('/user', (req, res) => {
@@ -137,6 +137,7 @@ app.post('/user/check', (req, res) => {
         res.status(400).send(e);
     })
 })
+
 app.post('/user', imgUser.single('userImg'), async (req, res) => {
 
     console.log(req.file);
@@ -230,6 +231,7 @@ app.post('/admin', imgUser.single('userImg'), async (req, res) => {
     }, (e) => {
         res.status(400).send(e);
     })
+    
 })
 
 
@@ -357,22 +359,129 @@ app.get('/order', (req, res) => {
 })
 
 
+app.get('/ordermouth',(req,res)=>{
+    var d = new Date();
+     
+    var date = d.getUTCDate();
+    var month = d.getUTCMonth() + 1; // Since getUTCMonth() returns month from 0-11 not 1-12
+    var year = d.getUTCFullYear();
+    
+    var dateStr = year + "-" + month + "-" + date;
+    // console.log(dateStr);
+    if(month === 1 ){
+       month = 12;
+       year = year - 1; 
+    }else{
+        month = month -1;
+    }
+    var datePre = year + "-"+ (month)+ "-"+date;
+
+    // res.send({dateStr,datePre});
+    listProductSales = [];
+    listProduct=[];
+    gia = 0;
+    Order.find({
+        dateOrder: {$gte: datePre, $lte: dateStr}
+    }).then((order)=>{
+        // console.log(order);
+        // res.send({order});
+        
+        for(var a of order){
+            //  console.log(JSON.parse(a.idproduct));
+            gia+=a.price;
+            for(var b of JSON.parse(a.idproduct)){
+                // console.log(b.split(' '));
+                var c = b.split(' ');
+                var d = {
+                    id: c[0],
+                    total: Number(c[1])
+                }
+                flag = true;    
+                for(var e in listProductSales){
+                    if(d.id === listProductSales[e].id){
+                        listProductSales[e].total += d.total;
+                        flag = false;
+                    }
+                }
+                if(flag = true){
+                    listProductSales.push(d);
+                }
+            }
+        }
+        //  console.log("list",listProductSales);
+        res.send({listProductSales,gia})
+
+    })
+   
+
+})
+
+
+
+app.get('/orderallday',(req,res)=>{
+   listProductSales= [];
+   gia = 0;
+   Order.find().then((order)=>{
+        // console.log(order);
+        // res.send({order});
+        for(var a of order){
+            gia += a.price;
+            //  console.log(JSON.parse(a.idproduct));
+            for(var b of JSON.parse(a.idproduct)){
+                // console.log(b.split(' '));
+                var c = b.split(' ');
+                var d = {
+                    id: c[0],
+                    total: Number(c[1])
+                }
+                flag = true;    
+                for(var e in listProductSales){
+                    if(d.id === listProductSales[e].id){
+                        listProductSales[e].total += d.total;
+                        flag = false;
+                    }
+                }
+                if(flag = true){
+                    listProductSales.push(d);
+                }
+            }
+        }
+         console.log("list",listProductSales);
+        res.send({listProductSales,gia});
+
+    })
+   
+
+})
 
 app.post('/order', async (req, res) => {
     // try{
     console.log(req.file);
+    var d = new Date();
+     
+    var date = d.getUTCDate();
+    var month = d.getUTCMonth() + 1; // Since getUTCMonth() returns month from 0-11 not 1-12
+    var year = d.getUTCFullYear();
+     
+    var dateStr = year + "-" + month + "-" + date;
+    console.log(dateStr);
     var order = new Order({
         id: req.body.id,
         email: req.body.email,
         phone: req.body.phone,
         address: req.body.address,
         idproduct: req.body.idproduct,
+        
         price: req.body.price,
         status: req.body.status
+        ,dateOrder: dateStr
 
     });
     console.log(order);
 
+    order.dateOrder instanceof Date;
+    order.validateSync()
+    // console.log()
     await order.save().then(order => {
         res.send(order)
     }, (e) => {
